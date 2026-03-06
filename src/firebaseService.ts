@@ -34,7 +34,7 @@ const firebaseConfig = {
   measurementId: "G-9QX5ZS9LC7"
 };
 
-const DEFAULT_TRIP_ID = 'trip_2025_nordic_master';
+const DEFAULT_TRIP_ID = 'kr-jeju';
 
 const app = initializeApp(firebaseConfig);
 
@@ -165,6 +165,7 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
+
 
 
 
