@@ -25,12 +25,13 @@ import type { Member } from './types';
 import { compressImage } from './imageUtils';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyChx0Ro7ArYxM1CQcBf41mq63p4AEVWZC4",
-  authDomain: "fi-travel.firebaseapp.com",
-  projectId: "fi-travel",
-  storageBucket: "fi-travel.firebasestorage.app",
-  messagingSenderId: "158292900207",
-  appId: "1:158292900207:web:40d53c028906d66b88109a",
+  apiKey: "AIzaSyB8-djS2DTksN7rPyUYid5CHpdCEjGLig0",
+  authDomain: "kr-jeju.firebaseapp.com",
+  projectId: "kr-jeju",
+  storageBucket: "kr-jeju.firebasestorage.app",
+  messagingSenderId: "771190783639",
+  appId: "1:771190783639:web:a1734aaa2f80980fe833d2",
+  measurementId: "G-9QX5ZS9LC7"
 };
 
 const DEFAULT_TRIP_ID = 'trip_2025_nordic_master';
@@ -164,6 +165,7 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
+
 
 
 
