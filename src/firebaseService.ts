@@ -40,6 +40,18 @@ const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export async function initTripDoc() {
+  const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
+
+  await setDoc(
+    ref,
+    {
+      schedule: {},
+      members: [],
+    },
+    { merge: true }
+  );
+};
 
 const auth = getAuth(app);
 
@@ -166,6 +178,7 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
+
 
 
 
