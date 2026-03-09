@@ -94,7 +94,7 @@ useEffect(() => {
 }, []);
 
   const dates = useMemo(() => Object.keys(fullSchedule || {}).sort(), [fullSchedule]);
-  const [selectedDate, setSelectedDate] = useState(dates[0] || '');
+  const [selectedDate, setSelectedDate] = useState('');
   const [timeLeft, setTimeLeft] = useState('');
   
   const [showEditModal, setShowEditModal] = useState(false);
@@ -249,8 +249,15 @@ useEffect(() => {
   setShowTimeShiftModal(false);
 };
 
-  const currentDayData = selectedDate ? (fullSchedule[selectedDate] || { items: [], metadata: { locationName: '未設定', forecast: [], isLive: false } }) : null;
-  if (!currentDayData) return null;
+const currentDayData = selectedDate
+  ? (fullSchedule[selectedDate] || {
+      items: [],
+      metadata: { locationName: '未設定', forecast: [], isLive: false }
+    })
+  : {
+      items: [],
+      metadata: { locationName: '未設定', forecast: [], isLive: false }
+    };
 
 
 
