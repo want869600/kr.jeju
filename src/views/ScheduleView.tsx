@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, NordicButton } from '../components/Shared';
 import { MOCK_WEATHER, CATEGORY_COLORS } from '../constants';
