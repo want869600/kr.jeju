@@ -99,7 +99,7 @@ export const dbService = {
   subscribeField: (field: string, cb: (data: any) => void) => {
     const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
     return onSnapshot(ref, (snap) => {
-      cb(snap.exists() ? snap.data()[field] ?? {} : {});
+      cb(snap.exists() ? snap.data()[field] : undefined);
     });
   },
 
@@ -165,6 +165,7 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
+
 
 
 
