@@ -97,11 +97,30 @@ export const dbService = {
     }),
 
   subscribeField: (field: string, cb: (data: any) => void) => {
-    const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
-    return onSnapshot(ref, (snap) => {
-      cb(snap.exists() ? snap.data()[field] : undefined);
-    });
-  },
+  const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
+
+  return onSnapshot(ref, (snap) => {
+    if (!snap.exists()) {
+      cb(field === 'schedule' ? {} : []);
+      return;
+    }
+
+    const data = snap.data()[field];
+
+    // schedule 預設是 object
+    if (field === 'schedule') {
+      cb(data ?? {});
+      return;
+    }
+
+    // 其他資料預設 array
+    if (Array.isArray(data)) {
+      cb(data);
+    } else {
+      cb([]);
+    }
+  });
+},
 
   updateField: async (field: string, value: any) => {
     const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
@@ -165,6 +184,7 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
+
 
 
 
