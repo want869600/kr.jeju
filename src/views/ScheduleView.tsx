@@ -77,23 +77,25 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ isEditMode, onToggleLock })
 
 useEffect(() => {
   const unsubscribe = dbService.subscribeField('schedule', (data) => {
-    console.log('🔥 snapshot', data);   // 👈 加在這裡
-    if (!data || typeof data !== 'object') return;
+    console.log('🔥 snapshot', data);
 
-    setFullSchedule(prev => {
-      // 如果資料一樣就不要覆蓋
-      if (JSON.stringify(prev) === JSON.stringify(data)) {
-        return prev;
-      }
+    if (!data || typeof data !== 'object') {
+      setFullSchedule({});
+      return;
+    }
 
-      return data;
-    });
+    setFullSchedule(data);
   });
 
   return () => unsubscribe();
 }, []);
 
   const dates = useMemo(() => Object.keys(fullSchedule || {}).sort(), [fullSchedule]);
+  useEffect(() => {
+  if (!selectedDate && dates.length > 0) {
+    setSelectedDate(dates[0]);
+  }
+}, [dates]);
   const [selectedDate, setSelectedDate] = useState('');
   const [timeLeft, setTimeLeft] = useState('');
   
