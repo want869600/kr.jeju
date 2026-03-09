@@ -25,8 +25,8 @@ export default defineConfig({
       ],
 
       manifest: {
-        name: '玟儒旅行團',
-        short_name: '玟儒旅行團',
+        name: '濟州島之旅',
+        short_name: '濟州島之旅',
         theme_color: '#577C8E',
         background_color: '#E7DDD3',
         display: 'standalone',
