@@ -34,24 +34,12 @@ const firebaseConfig = {
   measurementId: "G-9QX5ZS9LC7"
 };
 
-const DEFAULT_TRIP_ID = 'kr-jeju';
+const DEFAULT_TRIP_ID = 'trip_2025_nordic_master';
 
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export async function initTripDoc() {
-  const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
-
-  await setDoc(
-    ref,
-    {
-      schedule: {},
-      members: [],
-    },
-    { merge: true }
-  );
-};
 
 const auth = getAuth(app);
 
@@ -110,9 +98,8 @@ export const dbService = {
 
   subscribeField: (field: string, cb: (data: any) => void) => {
     const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
-  
     return onSnapshot(ref, (snap) => {
-      cb(snap.exists() ? snap.data()[field] ?? {} : {});
+      cb(snap.exists() ? snap.data()[field] : undefined);
     });
   },
 
@@ -178,12 +165,6 @@ export const bookingsService = {
     await deleteDoc(docRef);
   },
 };
-
-
-
-
-
-
 
 
 
