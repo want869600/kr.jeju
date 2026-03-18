@@ -53,7 +53,14 @@ const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
     return () => { unsubTodo(); unsubList(); unsubInfo(); };
   }, []);
 
-  const updatePlanningCloud = (field: string, value: any) => dbService.updateField(field, value);
+  const updatePlanningCloud = async (field: string, value: any) => {
+  try {
+    await dbService.updateField(field, value);
+    console.log("✅ 寫入成功");
+  } catch (e) {
+    console.error("❌ Firestore錯誤:", e);
+  }
+};
 
   const [showAddTodo, setShowAddTodo] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
@@ -67,7 +74,7 @@ const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
     setExpandedCats(next);
   };
 
-  const handlePostInfo = () => {
+  const handlePostInfo = async () => {
     const trimmedText = infoText.trim();
     if (!trimmedText && !infoImage) return;
     if (!currentAuthorId) {
@@ -87,8 +94,8 @@ const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
       newInfo.imageUrl = infoImage;
     }
 
-    const next = [newInfo, ...travelInfos];
-    updatePlanningCloud('travelInfos', next);
+    const next = [newInfo, ...(travelInfos || [])];
+await updatePlanningCloud('travelInfos', next);
     setInfoText('');
     setInfoImage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
