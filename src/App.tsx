@@ -1,5 +1,6 @@
 import SyncStatusBar from './components/SyncStatusBar';
 import React, { useState, useEffect } from 'react';
+import ScheduleView from './views/ScheduleView';
 import BookingsView from './views/BookingsView';
 import ExpenseView from './views/ExpenseView';
 import PlanningView from './views/PlanningView';
