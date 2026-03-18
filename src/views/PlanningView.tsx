@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NordicButton, NordicCard, Modal } from '../components/Shared';
 import type{ TodoItem, ChecklistItem, Member, PackingCategory } from '../types';
-import { dbService } from '../firebaseService';
+import { dbService, storage } from '../firebaseService';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 type ListCategory = 'packing' | 'shopping' | 'info';
 
@@ -93,17 +94,30 @@ const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleInfoImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setInfoImage(reader.result as string);
-        e.target.value = '';
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    // 建立 storage 路徑
+    const storageRef = ref(storage, `travelInfos/${Date.now()}_${file.name}`);
+
+    // 上傳圖片
+    await uploadBytes(storageRef, file);
+
+    // 取得下載 URL
+    const downloadURL = await getDownloadURL(storageRef);
+
+    // 存 URL（不是 base64）
+    setInfoImage(downloadURL);
+
+  } catch (error) {
+    console.error("圖片上傳失敗:", error);
+    alert("圖片上傳失敗");
+  }
+
+  e.target.value = '';
+};
 
   const deleteInfo = (id: string) => {
     updatePlanningCloud('travelInfos', travelInfos.filter(i => i.id !== id));
