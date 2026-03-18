@@ -34,10 +34,10 @@ const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [listData, setListData] = useState<Record<string, Record<'packing' | 'shopping', ChecklistItem[]>>>({});
   const [travelInfos, setTravelInfos] = useState<TravelInfo[]>([]);
-
   const [infoText, setInfoText] = useState('');
   const [infoImage, setInfoImage] = useState<string | null>(null);
   const [currentAuthorId, setCurrentAuthorId] = useState<string>('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -365,7 +365,13 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
                       <button onClick={() => deleteInfo(info.id)} className="opacity-0 group-hover:opacity-40 hover:!opacity-100 text-stamp transition-opacity p-1"><i className="fa-solid fa-trash-can text-sm"></i></button>
                     </div>
                     <p className="text-sage font-bold text-base leading-relaxed whitespace-pre-wrap tracking-tight">{info.text}</p>
-                    {info.imageUrl && <div className="mt-5 rounded-[2rem] overflow-hidden border border-paper/20 shadow-lg"><img src={info.imageUrl} className="w-full max-h-80 object-cover" alt="Info" /></div>}
+                    {info.imageUrl && <div className="mt-5 rounded-[2rem] overflow-hidden border border-paper/20 shadow-lg">
+                      <img 
+                        src={info.imageUrl} 
+                        className="w-full max-h-80 object-cover cursor-pointer"
+                        alt="Info"
+                        onClick={() => setPreviewImage(info.imageUrl!)}
+                      /></div>}
                   </NordicCard>
                 </div>
               );
@@ -413,6 +419,22 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
           <NordicButton onClick={handleAddItem} className="w-full h-14 bg-sage text-white font-bold mt-4 shadow-xl border-none uppercase tracking-widest">加入清單</NordicButton>
         </div>
       </Modal>
+      <Modal 
+      isOpen={!!previewImage} 
+      onClose={() => setPreviewImage(null)} 
+      title=""
+    >
+      {previewImage && (
+        <div className="flex justify-center items-center">
+          <img 
+            src={previewImage} 
+            className="max-w-full max-h-[80vh] rounded-xl"
+            alt="Preview"
+          />
+        </div>
+      )}
+    </Modal>
+
     </div>
   );
 };
