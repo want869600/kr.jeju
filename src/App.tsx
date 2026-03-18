@@ -1,6 +1,5 @@
 import SyncStatusBar from './components/SyncStatusBar';
 import React, { useState, useEffect } from 'react';
-import ScheduleView from './views/ScheduleView';
 import BookingsView from './views/BookingsView';
 import ExpenseView from './views/ExpenseView';
 import PlanningView from './views/PlanningView';
@@ -114,7 +113,7 @@ const App: React.FC = () => {
       case 'expense': 
         return <ExpenseView members={members || []} />;
       case 'planning': 
-        return <PlanningView members={members || []} />;
+        return <PlanningView members={members} isEditMode={isEditMode} onToggleLock={toggleLock} />;
       case 'members': 
         return (
           <MembersView 
