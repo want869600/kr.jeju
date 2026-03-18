@@ -25,9 +25,11 @@ const PACKING_CATS: { id: PackingCategory, label: string, icon: string }[] = [
 
 interface PlanningViewProps {
   members: Member[];
+  isEditMode: boolean;
+  onToggleLock?: () => void;
 }
 
-const PlanningView: React.FC<PlanningViewProps> = ({ members }) => {
+const PlanningView: React.FC<PlanningViewProps> = ({ members, isEditMode, onToggleLock }) => {
   const [activeTab, setActiveTab] = useState<'todo' | ListCategory>('todo');
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [expandedCats, setExpandedCats] = useState<Set<PackingCategory>>(new Set(PACKING_CATS.map(c => c.id)));
@@ -294,6 +296,11 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
     <div className="pb-36 px-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
       <div className="pt-2">
         <h1 className="text-3xl font-bold text-sage tracking-tight">事前準備</h1>
+        {onToggleLock && (
+            <button onClick={onToggleLock}>
+              <i className={`fa-solid ${isEditMode ? 'fa-lock-open' : 'fa-lock'}`}></i>
+            </button>
+          )}
         <p className="text-earth-dark mt-1 font-bold text-xs italic">同步所有人的準備進度</p>
       </div>
 
@@ -362,7 +369,14 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
                   <NordicCard className="p-7 bg-white rounded-[2.5rem] border-paper/20">
                     <div className="flex justify-between items-start mb-3">
                       <span className="text-[10px] font-bold text-earth-dark/40 uppercase tracking-widest">{new Date(info.createdAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                      <button onClick={() => deleteInfo(info.id)} className="opacity-0 group-hover:opacity-40 hover:!opacity-100 text-stamp transition-opacity p-1"><i className="fa-solid fa-trash-can text-sm"></i></button>
+                      {isEditMode && (
+                        <button 
+                          onClick={() => deleteInfo(info.id)} 
+                          className="opacity-0 group-hover:opacity-40 hover:!opacity-100 text-stamp transition-opacity p-1"
+                        >
+                          <i className="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                      )} 
                     </div>
                     <p className="text-sage font-bold text-base leading-relaxed whitespace-pre-wrap tracking-tight">{info.text}</p>
                     {info.imageUrl && <div className="mt-5 rounded-[2rem] overflow-hidden border border-paper/20 shadow-lg">
