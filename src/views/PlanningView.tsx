@@ -294,15 +294,25 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
 
   return (
     <div className="pb-36 px-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
-      <div className="pt-2">
+    <div className="pt-2">
+      <div className="flex items-center gap-2 group">
         <h1 className="text-3xl font-bold text-sage tracking-tight">事前準備</h1>
+    
         {onToggleLock && (
-            <button onClick={onToggleLock}>
-              <i className={`fa-solid ${isEditMode ? 'fa-lock-open' : 'fa-lock'}`}></i>
-            </button>
-          )}
-        <p className="text-earth-dark mt-1 font-bold text-xs italic">同步所有人的準備進度</p>
+          <button 
+            onClick={onToggleLock}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 -ml-1"
+            title={isEditMode ? "鎖定視圖" : "開啟編輯"}
+          >
+            <i className={`fa-solid ${isEditMode ? 'fa-lock-open text-stamp' : 'fa-lock text-ink/20'}`}></i>
+          </button>
+        )}
       </div>
+    
+      <p className="text-earth-dark mt-1 font-bold text-xs italic">
+        同步所有人的準備進度
+      </p>
+    </div>
 
       <div className="flex bg-white/60 p-1.5 rounded-full border border-paper/40 shadow-inner">
         {(['todo', 'packing', 'shopping', 'info'] as const).map((t) => (
