@@ -113,7 +113,7 @@ const App: React.FC = () => {
       case 'expense': 
         return <ExpenseView members={members || []} />;
       case 'planning': 
-        return <PlanningView members={members} isEditMode={isEditMode} onToggleLock={toggleLock} />;
+        return <PlanningView members={members} isEditMode={isEditMode} onToggleLock={handleToggleLock} />;
       case 'members': 
         return (
           <MembersView 
