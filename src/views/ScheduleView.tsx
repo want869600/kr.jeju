@@ -433,65 +433,36 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
               <div className="text-sm font-bold text-earth-dark tracking-wide">{item.time}</div>
                 <div className="flex items-start justify-between gap-3">
               <h4 className="text-xl font-bold text-ink leading-tight">{item.location}</h4>
-             {(() => {
-const links = item.links || [];
+          
 
-  return links.length > 0 && (
-    <div className="flex flex-wrap gap-2">
-      {links.map((link, idx) => {
-        try {
-          const url = new URL(link);
-          const domain = url.hostname.replace('www.', '');
+  {item.links && item.links.length > 0 && (
+  <div className="flex flex-wrap gap-2">
+    {item.links.map((link: string, idx: number) => {
+      const preview = getLinkPreview(link);
+      if (!preview) return null;
 
-          return (
-            <a
-              key={idx}
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-             className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 transition-all duration-200 hover:scale-95 active:scale-90 hover:bg-white"
-            >
-{links.map((link, idx) => {
-  const preview = getLinkPreview(link);
-  if (!preview) return null;
-
-  return (
-    <a
-      key={idx}
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={(e) => e.stopPropagation()}
-      className="group flex items-center gap-3 bg-white border border-paper rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[0.97]"
-    >
-      <img
-        src={preview.favicon}
-        className="w-5 h-5 rounded"
-      />
-
-      <div className="flex flex-col leading-tight">
-        <span className="text-[11px] font-bold text-ink truncate max-w-[140px]">
-          {preview.title}
-        </span>
-        <span className="text-[9px] text-earth-dark opacity-70">
-          {preview.domain}
-        </span>
-      </div>
-    </a>
-  );
-})}
-
-              
-            </a>
-          );
-        } catch {
-          return null;
-        }
-      })}
-    </div>
-  );
-})()}
+      return (
+        <a
+          key={idx}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="group flex items-center gap-2 bg-paper/40 border border-paper/60 rounded-full px-2 py-1 transition-all duration-200 hover:scale-95 active:scale-90 hover:bg-white"
+        >
+          <img
+            src={preview.favicon}
+            className="w-3 h-3 shrink-0"
+          />
+          <span className="text-[11px] font-semibold truncate max-w-[120px]">
+            {preview.domain}
+          </span>
+        </a>
+      );
+    })}
+  </div>
+)}            
+  
 
 
 
@@ -729,8 +700,41 @@ const links = item.links || [];
 
 
   {/* 已有連結 */}
+<div className="space-y-2">
+  <label className="text-[10px] font-bold text-earth-dark uppercase pl-1">
+    相關連結
+  </label>
+
   <div className="space-y-2">
-    {(editingItem.links || []).map((link, idx) => (
+    {(editingItem.links || ['']).map((link, idx, arr) => (
+      <input
+        key={idx}
+        type="url"
+        value={link}
+        placeholder="https://example.com"
+        onChange={(e) => {
+          const value = e.target.value;
+          const newLinks = [...arr];
+          newLinks[idx] = value;
+
+          // 👉 自動新增下一格
+          if (idx === arr.length - 1 && value.trim() !== '') {
+            newLinks.push('');
+          }
+
+          setEditingItem({
+            ...editingItem,
+            links: newLinks
+          });
+        }}
+        className="w-full h-[56px] px-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
+      />
+    ))}
+  </div>
+</div>
+
+
+      
       <div key={idx} className="flex items-center gap-2">
         <input
           type="url"
