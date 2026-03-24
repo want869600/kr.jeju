@@ -436,13 +436,14 @@ const links = item.links || [];
               onClick={(e) => e.stopPropagation()}
               className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 hover:bg-white"
             >
-              <img
-                src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
-                className="w-3.5 h-3.5"
-              />
-              <span className="ml-2 text-[11px] font-semibold">
-                {domain}
-              </span>
+<img
+  src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
+  className="w-3 h-3 shrink-0"
+/>
+
+<span className="ml-1 text-[10px] font-semibold">
+  {domain}
+</span>
             </a>
           );
         } catch {
