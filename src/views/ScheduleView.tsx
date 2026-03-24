@@ -691,7 +691,7 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                 className="w-full h-[56px] p-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
                 placeholder="輸入詳細地址或地標..."
               />
-            </div>
+      
 
 
        <div className="space-y-2">
