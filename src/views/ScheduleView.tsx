@@ -692,65 +692,13 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                 placeholder="輸入詳細地址或地標..."
               />
             </div>
-                        <div className="space-y-2">
-              <label className="text-[10px] font-bold text-earth-dark uppercase pl-1">
-                相關連結
-              </label>
-<div className="space-y-2">
 
 
-  {/* 已有連結 */}
-<div className="space-y-2">
+       <div className="space-y-2">
   <label className="text-[10px] font-bold text-earth-dark uppercase pl-1">
     相關連結
   </label>
 
-  <div className="space-y-2">
-    {(editingItem.links || ['']).map((link, idx, arr) => (
-      <input
-        key={idx}
-        type="url"
-        value={link}
-        placeholder="https://example.com"
-        onChange={(e) => {
-          const value = e.target.value;
-          const newLinks = [...arr];
-          newLinks[idx] = value;
-
-          // 👉 自動新增下一格
-          if (idx === arr.length - 1 && value.trim() !== '') {
-            newLinks.push('');
-          }
-
-          setEditingItem({
-            ...editingItem,
-            links: newLinks
-          });
-        }}
-        className="w-full h-[56px] px-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
-      />
-    ))}
-  </div>
-</div>
-
-
-      
-      <div key={idx} className="flex items-center gap-2">
-        <input
-          type="url"
-          value={link}
-          onChange={(e) => {
-            const newLinks = [...(editingItem.links || [])];
-            newLinks[idx] = e.target.value;
-            setEditingItem({ ...editingItem, links: newLinks });
-          }}
-          className="flex-1 h-[56px] px-4 bg-white border-2 border-paper rounded-[2rem] text-sm font-bold text-ink"
-          placeholder="https://example.com"
-        />
-
-        {/* 刪除 */}
-
-<div className="space-y-2">
   {(editingItem.links || ['']).map((link, idx, arr) => (
     <input
       key={idx}
@@ -762,7 +710,7 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
         const newLinks = [...arr];
         newLinks[idx] = value;
 
-        // 👉 如果是最後一格 & 有輸入 → 自動新增下一格
+        // 👉 自動新增下一格
         if (idx === arr.length - 1 && value.trim() !== '') {
           newLinks.push('');
         }
@@ -775,9 +723,9 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
       className="w-full h-[56px] px-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
     />
   ))}
-</div>
-        
-</div>
+</div>     
+
+
                           
             </div>
              <div className="space-y-2"><label className="text-[10px] font-bold text-earth-dark uppercase pl-1">預計時間</label><input type="time" value={editingItem.time} onChange={(e) => setEditingItem({...editingItem, time: e.target.value})} className="w-full h-[56px] p-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm text-center" /></div>
