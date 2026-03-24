@@ -418,7 +418,7 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                 <div className="flex items-start justify-between gap-3">
               <h4 className="text-xl font-bold text-ink leading-tight">{item.location}</h4>
              {(() => {
-  const links = item.links || (item.link ? [item.link] : []);
+const links = item.links || [];
 
   return links.length > 0 && (
     <div className="flex flex-wrap gap-2">
