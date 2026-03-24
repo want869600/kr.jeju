@@ -434,16 +434,12 @@ const links = item.links || [];
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 hover:bg-white"
+             className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 transition-all duration-200 hover:scale-95 active:scale-90 hover:bg-white"
             >
 <img
   src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
   className="w-3 h-3 shrink-0"
 />
-
-<span className="ml-1 text-[10px] font-semibold">
-  {domain}
-</span>
             </a>
           );
         } catch {
