@@ -77,25 +77,16 @@ const ScheduleView: React.FC<ScheduleViewProps> = ({ isEditMode, onToggleLock })
 
 useEffect(() => {
   const unsubscribe = dbService.subscribeField('schedule', (data) => {
-    console.log('🔥 snapshot', data);
-
-    // ❗ 只在有資料時才更新
-    if (data && typeof data === 'object') {
+    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
       setFullSchedule(data);
     }
-
-    // ❌ 不要再 set {}
   });
 
   return () => unsubscribe();
 }, []);
 
   const dates = useMemo(() => Object.keys(fullSchedule || {}).sort(), [fullSchedule]);
-  useEffect(() => {
-  if (!selectedDate && dates.length > 0) {
-    setSelectedDate(dates[0]);
-  }
-}, [dates]);
+
   const [selectedDate, setSelectedDate] = useState('');
   const [timeLeft, setTimeLeft] = useState('');
   
@@ -115,12 +106,12 @@ useEffect(() => {
   const [shiftValue, setShiftValue] = useState(30);
 
   useEffect(() => {
-    if (dates.length > 0 && !selectedDate) {
-      setSelectedDate(dates[0]);
-    } else if (dates.length === 0) {
-      setSelectedDate('');
-    }
-  }, [dates, selectedDate]);
+  if (dates.length === 0) {
+    setSelectedDate('');
+  } else if (!selectedDate) {
+    setSelectedDate(dates[0]);
+  }
+}, [dates]);
 
   useEffect(() => {
     if (!dates || dates.length === 0) {
@@ -426,63 +417,45 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
               <div className="text-sm font-bold text-earth-dark tracking-wide">{item.time}</div>
                 <div className="flex items-start justify-between gap-3">
               <h4 className="text-xl font-bold text-ink leading-tight">{item.location}</h4>
-              {item.link && (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="group relative flex items-center
-                             bg-paper/40 backdrop-blur-sm
-                             border border-paper/60
-                             rounded-full
-                             px-2 py-1
-                             transition-all duration-300
-                             hover:bg-white hover:border-paper"
-                >
-                  {(() => {
-                    try {
-                      const url = new URL(item.link as string);
-                      const domain = url.hostname.replace('www.', '');
-            
-                      return (
-                        <>
-                          {/* favicon */}
-                          <img
-                            src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
-                            alt=""
-                            className="w-3.5 h-3.5 rounded-full"
-                          />
-            
-                          {/* domain（滑出效果） */}
-                          <span
-                            className="ml-2 text-[11px] font-semibold text-ink
-                                       max-w-0 overflow-hidden
-                                       group-hover:max-w-[140px]
-                                       opacity-0 group-hover:opacity-100
-                                       transition-all duration-300
-                                       whitespace-nowrap"
-                          >
-                            {domain}
-                          </span>
-            
-                          {/* 外連 icon */}
-                          <i
-                            className="fa-solid fa-arrow-up-right-from-square
-                                       text-[9px] ml-1
-                                       opacity-0 group-hover:opacity-50
-                                       transition-all duration-300"
-                          ></i>
-                        </>
-                      );
-                    } catch {
-                      return (
-                        <i className="fa-solid fa-link text-[10px] text-earth-dark"></i>
-                      );
-                    }
-                  })()}
-                </a>
-              )}
+             {(() => {
+  const links = item.links || (item.link ? [item.link] : []);
+
+  return links.length > 0 && (
+    <div className="flex flex-wrap gap-2">
+      {links.map((link, idx) => {
+        try {
+          const url = new URL(link);
+          const domain = url.hostname.replace('www.', '');
+
+          return (
+            <a
+              key={idx}
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 hover:bg-white"
+            >
+              <img
+                src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
+                className="w-3.5 h-3.5"
+              />
+              <span className="ml-2 text-[11px] font-semibold">
+                {domain}
+              </span>
+            </a>
+          );
+        } catch {
+          return null;
+        }
+      })}
+    </div>
+  );
+})()}
+
+
+
+                  
             </div>
                  {item.address && (<div onClick={(e) => { e.stopPropagation();openInGoogleMaps(item.address!)  }}
                    className="text-[10px] font-bold text-harbor flex items-center gap-1.5 mt-1 cursor-pointer hover:underline" >
@@ -712,15 +685,53 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
               <label className="text-[10px] font-bold text-earth-dark uppercase pl-1">
                 相關連結
               </label>
-              <input
-                type="url"
-                value={editingItem.link || ''}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, link: e.target.value })
-                }
-                className="w-full h-[56px] p-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
-                placeholder="https://example.com"
-              />
+<div className="space-y-2">
+
+
+  {/* 已有連結 */}
+  <div className="space-y-2">
+    {(editingItem.links || []).map((link, idx) => (
+      <div key={idx} className="flex items-center gap-2">
+        <input
+          type="url"
+          value={link}
+          onChange={(e) => {
+            const newLinks = [...(editingItem.links || [])];
+            newLinks[idx] = e.target.value;
+            setEditingItem({ ...editingItem, links: newLinks });
+          }}
+          className="flex-1 h-[56px] px-4 bg-white border-2 border-paper rounded-[2rem] text-sm font-bold text-ink"
+          placeholder="https://example.com"
+        />
+
+        {/* 刪除 */}
+        <button
+          onClick={() => {
+            const newLinks = (editingItem.links || []).filter((_, i) => i !== idx);
+            setEditingItem({ ...editingItem, links: newLinks });
+          }}
+          className="w-10 h-10 rounded-full bg-stamp/10 text-stamp flex items-center justify-center active:scale-90"
+        >
+          <i className="fa-solid fa-trash text-xs"></i>
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {/* 新增 */}
+  <button
+    onClick={() =>
+      setEditingItem({
+        ...editingItem,
+        links: [...(editingItem.links || []), '']
+      })
+    }
+    className="text-xs font-bold text-harbor pl-1"
+  >
+    ＋ 新增連結
+  </button>
+</div>
+                          
             </div>
              <div className="space-y-2"><label className="text-[10px] font-bold text-earth-dark uppercase pl-1">預計時間</label><input type="time" value={editingItem.time} onChange={(e) => setEditingItem({...editingItem, time: e.target.value})} className="w-full h-[56px] p-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm text-center" /></div>
                {/* 交通方式 */}
@@ -835,15 +846,7 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
             <div className="pt-2 space-y-3">
               <NordicButton
                       onClick={() => {
-                          const rawLink = editingItem.link?.trim();
                         
-                          let formattedLink: string | undefined;
-                        
-                          if (rawLink) {
-                            formattedLink = rawLink.startsWith('http')
-                              ? rawLink
-                              : 'https://' + rawLink;
-                          }
                         
                           // 👇 完整安全版
                           const updatedItem: any = {
@@ -854,7 +857,9 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                           };
                         
                           if (editingItem.address) updatedItem.address = editingItem.address;
-                          if (formattedLink) updatedItem.link = formattedLink;
+if (editingItem.links && editingItem.links.length > 0) {
+  updatedItem.links = editingItem.links.filter(l => l.trim() !== '');
+}
                           if (editingItem.note) updatedItem.note = editingItem.note;
                           if (editingItem.transportMode) updatedItem.transportMode = editingItem.transportMode;
                           if (editingItem.travelMinutes !== undefined)
