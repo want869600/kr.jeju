@@ -79,12 +79,12 @@ useEffect(() => {
   const unsubscribe = dbService.subscribeField('schedule', (data) => {
     console.log('🔥 snapshot', data);
 
-    if (!data || typeof data !== 'object') {
-      setFullSchedule({});
-      return;
+    // ❗ 只在有資料時才更新
+    if (data && typeof data === 'object') {
+      setFullSchedule(data);
     }
 
-    setFullSchedule(data);
+    // ❌ 不要再 set {}
   });
 
   return () => unsubscribe();
@@ -139,10 +139,25 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, [dates]);
 
-  const updateScheduleCloud = (newData: Record<string, DayData>) => {
-    setFullSchedule(newData);
-    dbService.updateField('schedule', newData);
-  };
+const updateScheduleCloud = (newData: Record<string, DayData>) => {
+  if (!newData) {
+    console.warn("⚠️ 阻止 undefined");
+    return;
+  }
+
+  // ❗ 檢查每一天是否有資料
+   const hasValidData = Object.values(newData).some(day => 
+    day && Array.isArray(day.items)
+  );
+
+  if (!hasValidData) {
+    console.warn("⚠️ 阻止寫入無效 schedule");
+    return;
+  }
+
+  setFullSchedule(newData);
+  dbService.updateField('schedule', newData);
+};
 
   const fetchWeatherForLocationAndDate = useCallback(async (location: string, targetDate: string, isAutoUpgrade: boolean = false) => {
     const query = (location || "").trim();
@@ -319,7 +334,9 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
         </div>
         <div className="flex items-center gap-3">
            <button 
-             onClick={() => isEditMode && selectedDate && (setTempMetadata({...currentDayData!.metadata}), setSearchQuery(''), setShowWeatherModal(true))}
+             onClick={() => isEditMode && selectedDate && 
+               (setTempMetadata({...currentDayData!.metadata}), 
+                setSearchQuery(''), setShowWeatherModal(true))}
              disabled={!selectedDate && isEditMode}
              className={`text-sm font-bold text-ink bg-white/60 px-5 py-2 rounded-full border border-paper shadow-sm text-center min-w-[120px] tracking-tight flex items-center justify-center gap-2 ${isEditMode && selectedDate ? 'hover:bg-white active:scale-95 transition-all cursor-pointer' : 'opacity-50'}`}
            >
@@ -498,7 +515,25 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
               </div>
               {isEditMode && (
                 <button 
-                  onClick={(e) => { e.stopPropagation(); updateScheduleCloud({ ...fullSchedule, [selectedDate]: { ...currentDayData!, items: currentDayData!.items.filter(i => i.id !== item.id) } }); }}
+                 onClick={(e) => { 
+                  e.stopPropagation(); 
+                
+                  const newItems = currentDayData!.items.filter(i => i.id !== item.id);
+                
+                  // ❗ 防止刪到最後一筆導致整天被清空
+                  if (newItems.length === 0) {
+                    console.warn("⚠️ 最後一筆，不寫入避免清空");
+                    return;
+                  }
+                
+                  updateScheduleCloud({ 
+                    ...fullSchedule, 
+                    [selectedDate]: { 
+                      ...currentDayData!, 
+                      items: newItems
+                    } 
+                  }); 
+                }}
                   className="w-10 h-10 rounded-full bg-stamp/10 text-stamp flex items-center justify-center active:scale-90 transition-all"
                 >
                  <FontAwesomeIcon icon={FA.faTrashCan} className="text-sm" />
@@ -573,13 +608,20 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
             </div>
 
             <div className="px-1">
-              <NordicButton 
+             <NordicButton 
                 onClick={() => { 
-                  if (!tempMetadata?.locationName) return; 
-                  updateScheduleCloud({ ...fullSchedule, [selectedDate]: { ...fullSchedule[selectedDate], metadata: tempMetadata } }); 
-                  setShowWeatherModal(false); 
-                }} 
-                className={`w-full py-4.5 text-sm font-bold ${!tempMetadata?.locationName || isFetchingWeather ? 'opacity-50 pointer-events-none' : ''}`}
+                  if (!tempMetadata) return;
+              
+                  updateScheduleCloud({ 
+                    ...fullSchedule, 
+                    [selectedDate]: { 
+                      ...currentDayData!, 
+                      metadata: tempMetadata   // ✅ 只更新天氣
+                    } 
+                  }); 
+              
+                  setShowWeatherModal(false);
+                }}
               >
                 儲存目的地並套用氣象
               </NordicButton>
@@ -823,7 +865,10 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                           Object.keys(next).forEach(d => {
                             next[d].items = next[d].items.filter(i => i.id !== updatedItem.id);
                           });
-                        
+                        if (!next[selectedDate]) {
+                            console.warn("⚠️ selectedDate 不存在");
+                            return;
+                          }
                           next[selectedDate].items = [
                             ...(next[selectedDate].items || []),
                             updatedItem
@@ -836,7 +881,25 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
                     >
                       儲存行程細節
                     </NordicButton>
-              <button onClick={() => { updateScheduleCloud({ ...fullSchedule, [selectedDate]: { ...currentDayData!, items: (currentDayData!.items || []).filter(i => i.id !== editingItem.id) } }); setShowEditModal(false); }} className="w-full py-3 text-stamp font-bold text-xs uppercase hover:underline"><i className="fa-solid fa-trash-can mr-2"></i> 刪除此項行程</button>
+             <button onClick={() => { 
+                    const newItems = (currentDayData!.items || []).filter(i => i.id !== editingItem.id);
+                  
+                    if (newItems.length === 0) {
+                      console.warn("⚠️ 最後一筆，不寫入避免清空");
+                      return;
+                    }
+                  
+                    updateScheduleCloud({ 
+                      ...fullSchedule, 
+                      [selectedDate]: { 
+                        ...currentDayData!, 
+                        items: newItems
+                      } 
+                    }); 
+                  
+                    setShowEditModal(false); 
+                  }} 
+                className="w-full py-3 text-stamp font-bold text-xs uppercase hover:underline"><i className="fa-solid fa-trash-can mr-2"></i> 刪除此項行程</button>
             </div>
           </div>
         )}
