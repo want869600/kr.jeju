@@ -1,3 +1,19 @@
+const getLinkPreview = (url: string) => {
+  try {
+    const u = new URL(url);
+    const domain = u.hostname.replace('www.', '');
+
+    return {
+      domain,
+      favicon: `https://www.google.com/s2/favicons?sz=64&domain=${domain}`,
+      title: domain // 👉 簡化版（之後可以升級抓真標題）
+    };
+  } catch {
+    return null;
+  }
+};
+
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, NordicButton } from '../components/Shared';
 import { MOCK_WEATHER, CATEGORY_COLORS } from '../constants';
@@ -436,10 +452,37 @@ const links = item.links || [];
               onClick={(e) => e.stopPropagation()}
              className="group flex items-center bg-paper/40 border border-paper/60 rounded-full px-2 py-1 transition-all duration-200 hover:scale-95 active:scale-90 hover:bg-white"
             >
-<img
-  src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`}
-  className="w-3 h-3 shrink-0"
-/>
+{links.map((link, idx) => {
+  const preview = getLinkPreview(link);
+  if (!preview) return null;
+
+  return (
+    <a
+      key={idx}
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="group flex items-center gap-3 bg-white border border-paper rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[0.97]"
+    >
+      <img
+        src={preview.favicon}
+        className="w-5 h-5 rounded"
+      />
+
+      <div className="flex flex-col leading-tight">
+        <span className="text-[11px] font-bold text-ink truncate max-w-[140px]">
+          {preview.title}
+        </span>
+        <span className="text-[9px] text-earth-dark opacity-70">
+          {preview.domain}
+        </span>
+      </div>
+    </a>
+  );
+})}
+
+              
             </a>
           );
         } catch {
@@ -702,31 +745,34 @@ const links = item.links || [];
         />
 
         {/* 刪除 */}
-        <button
-          onClick={() => {
-            const newLinks = (editingItem.links || []).filter((_, i) => i !== idx);
-            setEditingItem({ ...editingItem, links: newLinks });
-          }}
-          className="w-10 h-10 rounded-full bg-stamp/10 text-stamp flex items-center justify-center active:scale-90"
-        >
-          <i className="fa-solid fa-trash text-xs"></i>
-        </button>
-      </div>
-    ))}
-  </div>
 
-  {/* 新增 */}
-  <button
-    onClick={() =>
-      setEditingItem({
-        ...editingItem,
-        links: [...(editingItem.links || []), '']
-      })
-    }
-    className="text-xs font-bold text-harbor pl-1"
-  >
-    ＋ 新增連結
-  </button>
+<div className="space-y-2">
+  {(editingItem.links || ['']).map((link, idx, arr) => (
+    <input
+      key={idx}
+      type="url"
+      value={link}
+      placeholder="https://example.com"
+      onChange={(e) => {
+        const value = e.target.value;
+        const newLinks = [...arr];
+        newLinks[idx] = value;
+
+        // 👉 如果是最後一格 & 有輸入 → 自動新增下一格
+        if (idx === arr.length - 1 && value.trim() !== '') {
+          newLinks.push('');
+        }
+
+        setEditingItem({
+          ...editingItem,
+          links: newLinks
+        });
+      }}
+      className="w-full h-[56px] px-5 bg-white border-2 border-paper rounded-[2rem] font-bold text-ink shadow-sm"
+    />
+  ))}
+</div>
+        
 </div>
                           
             </div>
