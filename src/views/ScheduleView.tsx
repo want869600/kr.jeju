@@ -458,10 +458,6 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
 </a>
 
         
-          <span className="text-[10px] font-semibold truncate max-w-[120px]">
-            {preview.domain}
-          </span>
-        </a>
       );
     })}
   </div>
