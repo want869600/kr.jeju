@@ -448,13 +448,14 @@ const getWeatherIcon = (condition: string, hour: string, temp: number) => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="group flex items-center gap-2 bg-paper/40 border border-paper/60 rounded-full px-2 py-1 transition-all duration-200 hover:scale-95 active:scale-90 hover:bg-white"
+          className="group flex items-center gap-1 bg-paper/30 border border-paper/50 rounded-full px-1.5 py-0.5 transition-all duration-200 hover:scale-95 active:scale-90"
+          
         >
           <img
             src={preview.favicon}
-            className="w-3 h-3 shrink-0"
+            className="w-2.5 h-2.5 shrink-0"
           />
-          <span className="text-[11px] font-semibold truncate max-w-[120px]">
+          <span className="text-[10px] font-semibold truncate max-w-[120px]">
             {preview.domain}
           </span>
         </a>
