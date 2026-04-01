@@ -712,51 +712,48 @@ const settlement: Settlement = {
                             <span className="text-sage">{item.note || '旅途支出'}</span>
                             <span className="text-earth-dark/50 text-[8px] uppercase tracking-widest">{item.date}</span>
                           </div>
-                          <div className="text-right">
-                            <div className="text-sage">
 
+<div className="text-right">
+  {(() => {
+    const rawShare =
+      analysisMemberId === 'TEAM'
+        ? item.amount
+        : item.amount / item.splitWith.length;
 
+    const twdValue = Math.round(rawShare);
+    const isConverted = item.currency !== 'TWD';
 
-                              {(() => {
-  const rawShare =
-    analysisMemberId === 'TEAM'
-      ? item.amount
-      : item.amount / item.splitWith.length;
-
-  const twdValue = Math.round(rawShare);
-  const isConverted = item.currency !== 'TWD';
-
-  return (
-    <>
-      <div className="flex items-center justify-end gap-1.5">
-        {isConverted && (
-          <span className="
-            px-1.5 py-0.5
-            rounded-full
-            text-[8px]
-            font-bold
-            bg-paper/40
-            text-earth-dark/60
-            tracking-tight
-          ">
-            ≈
+    return (
+      <>
+        <div className="flex items-center justify-end gap-1.5">
+          {isConverted && (
+            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-paper/40 text-earth-dark/60">
+              ≈
+            </span>
+          )}
+          <span className="text-sage">
+            NT$ {twdValue.toLocaleString()}
           </span>
-        )}
-        <span className="text-sage">
-          NT$ {twdValue.toLocaleString()}
-        </span>
-      </div> 
-    </>
-  );
-})()}
+        </div>
 
+        <div className="text-[7px] text-earth-dark/40">
+          {item.currency !== 'TWD' ? (
+            <>
+              {item.currency}{' '}
+              {(item.originalAmount ?? item.amount).toLocaleString()} ≈ NT${' '}
+              {Math.round(item.amount).toLocaleString()}
+            </>
+          ) : (
+            <>NT$ {item.amount.toLocaleString()}</>
+          )}
+        </div>
+      </>
+    );
+  })()}
+</div>
+                          
+                 
 
-
-
-                              
-                            </div>
-
-                            <div className="text-[7px] text-earth-dark/40">
   {item.currency !== 'TWD' ? (
     <>
       {item.currency} {item.originalAmount.toLocaleString()} ≈ NT${' '}
