@@ -471,7 +471,7 @@ const settlement: Settlement = {
   s =>
     s.type === 'EXPENSE' &&
     s.currency === activeCurrency &&
-    s.type === 'EXPENSE' &&
+
     s.expenseIds?.includes(exp.id) &&
     s.repayments.some(r => r.fromId === memberId)
 );
@@ -752,8 +752,11 @@ const settlement: Settlement = {
           })()}
       </div>
     ))}
+      </div>
+    )}
+
   </div>
-)}
+))}
                   
 
           <NordicButton onClick={() => setShowAnalysis(false)} className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase">關閉分析圖表</NordicButton>
