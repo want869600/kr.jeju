@@ -103,8 +103,14 @@ const ExpenseView: React.FC<ExpenseViewProps> = ({ members }) => {
   const [currencyRates, setCurrencyRates] = useState<Record<string, number>>(INITIAL_CURRENCIES);
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
   const [activeCurrency, setActiveCurrency] =
-  useState<'TWD' | 'EUR'>('TWD');
+  useState<string>('TWD');
   useEffect(() => {
+    const keys = Object.keys(currencyRates);
+
+  if (keys.length > 0 && !keys.includes(activeCurrency)) {
+    setActiveCurrency(keys[0]);
+  }
+}, [currencyRates]);
     const unsubExp = dbService.subscribeField('expenses', (data) => setExpenses(data || []));
     const unsubSettle = dbService.subscribeField('settlements',(data) => setSettlements(data || []));
     
@@ -520,24 +526,27 @@ const settlement: Settlement = {
         <h1 className="text-3xl font-bold text-sage tracking-tight">記帳本</h1>
         <p className="text-earth-dark mt-1 font-bold text-xs italic">同步於雲端的團隊開支</p>
       </div>
-      <div className="flex gap-2 mt-3">
-        {(['TWD', 'EUR'] as const).map(c => (
-          <button
-            key={c}
-            onClick={() => setActiveCurrency(c)}
-            className={`
-              px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest
-              transition-all active:scale-95
-              ${
-                activeCurrency === c
-                  ? 'bg-harbor text-white shadow-md'
-                  : 'bg-paper/30 text-earth-dark/50'
-              }
-            `}
-          >
-            {c}
-          </button>
-        ))}
+<div className="flex gap-2 mt-3">
+  {Object.keys(currencyRates).map(c => (
+    <button
+      key={c}
+      onClick={() => setActiveCurrency(c)}
+      className={`
+        px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest
+        transition-all active:scale-95
+        ${
+          activeCurrency === c
+            ? 'bg-harbor text-white shadow-md'
+            : 'bg-paper/30 text-earth-dark/50'
+        }
+      `}
+    >
+      {c}
+    </button>
+  ))}
+</div>
+
+      
       </div>
       <div className="bg-[#E7DDD3] px-7 py-5 border-none relative overflow-hidden nordic-shadow rounded-[2.5rem] shadow-xl">
         <div className="relative z-10 space-y-4">
