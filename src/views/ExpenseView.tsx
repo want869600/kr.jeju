@@ -190,8 +190,8 @@ CATEGORIES.forEach(c => {
   categoriesSum[c.id] = { total: 0, items: [] };
 });
 
+
 expenses.forEach(exp => {
-  const rate = currencyRates[exp.currency] || 1;
 
   // ① 這筆是否應該算進來
   const isIncluded =
@@ -207,8 +207,8 @@ expenses.forEach(exp => {
       ? exp.amount
       : exp.amount / exp.splitWith.length;
 
-  // ③ 只在 analysis 做匯率轉換
- const twdValue = rawAmount;
+  // ③ 已經是 TWD（不用再轉）
+  const twdValue = rawAmount;
 
   if (categoriesSum[exp.category]) {
     categoriesSum[exp.category].total += twdValue;
@@ -423,6 +423,7 @@ const amountTWD =
 const exp: Expense = {
   id: isEditMode && selectedExpense ? selectedExpense.id : Date.now().toString(),
   amount: amountTWD,              // ⭐ 用轉換後的
+  originalAmount: rawAmount, 
   currency: formData.currency,    // ⭐ 保留原幣（顯示用）
   category: formData.category,
   payerId: formData.payerId,
@@ -713,43 +714,60 @@ const settlement: Settlement = {
                           </div>
                           <div className="text-right">
                             <div className="text-sage">
+
+
+
                               {(() => {
-                                  const rate = currencyRates[item.currency] || 1;
-                                
-                                  const rawShare =
-                                    analysisMemberId === 'TEAM'
-                                      ? item.amount
-                                      : item.amount / item.splitWith.length;
-                                
-                                  const twdValue = Math.round(rawShare * rate);
-                                  const isConverted = item.currency !== 'TWD';
-                                
-                                  return (
-                                    <>
-                                      <div className="flex items-center justify-end gap-1.5">
-                                        {isConverted && (
-                                          <span className="
-                                            px-1.5 py-0.5
-                                            rounded-full
-                                            text-[8px]
-                                            font-bold
-                                            bg-paper/40
-                                            text-earth-dark/60
-                                            tracking-tight
-                                          ">
-                                            ≈
-                                          </span>
-                                        )}
-                                        <span className="text-sage">
-                                          NT$ {twdValue.toLocaleString()}
-                                        </span>
-                                      </div> 
-                                    </>
-                                  );
-                                })()}
+  const rawShare =
+    analysisMemberId === 'TEAM'
+      ? item.amount
+      : item.amount / item.splitWith.length;
+
+  const twdValue = Math.round(rawShare);
+  const isConverted = item.currency !== 'TWD';
+
+  return (
+    <>
+      <div className="flex items-center justify-end gap-1.5">
+        {isConverted && (
+          <span className="
+            px-1.5 py-0.5
+            rounded-full
+            text-[8px]
+            font-bold
+            bg-paper/40
+            text-earth-dark/60
+            tracking-tight
+          ">
+            ≈
+          </span>
+        )}
+        <span className="text-sage">
+          NT$ {twdValue.toLocaleString()}
+        </span>
+      </div> 
+    </>
+  );
+})()}
+
+
+
+
+                              
                             </div>
-                            <div className="text-[7px] text-earth-dark/40">{item.currency} {item.amount.toLocaleString()}</div>
-                          </div>
+
+                            <div className="text-[7px] text-earth-dark/40">
+  {item.currency !== 'TWD' ? (
+    <>
+      {item.currency} {item.originalAmount.toLocaleString()} ≈ NT${' '}
+      {Math.round(item.amount).toLocaleString()}
+    </>
+  ) : (
+    <>
+      NT$ {item.amount.toLocaleString()}
+    </>
+  )}
+</div>
                         </div>
                       ))}
                     </div>
@@ -984,7 +1002,7 @@ const settlement: Settlement = {
              <input type="number" placeholder="輸入支出金額" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} className="flex-grow p-3 bg-transparent font-bold text-sage text-xl outline-none" />
           </div>
 
-{formData.amount && (
+{formData.amount && formData.currency !== 'TWD' && (
   <div className="text-xs text-earth-dark/50 mt-1 px-1">
     ≈ NT$
     {(() => {
