@@ -163,9 +163,22 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
       item.category = newItem.category;
     }
 
-    const currentMemberData = listData[selectedMemberId] || { packing: [], shopping: [] };
-    const next = { 
-      ...listData, 
+const safeListData = listData || {};
+
+const currentMemberData =
+  safeListData[selectedMemberId] || { packing: [], shopping: [] };
+
+const next = { 
+  ...safeListData,
+  [selectedMemberId]: { 
+    ...currentMemberData, 
+    [targetTab]: [...(currentMemberData[targetTab] || []), item] 
+  } 
+};
+
+console.log('寫入 listData:', next); // ⭐ 建議保留
+
+updatePlanningCloud('listData', next);
       [selectedMemberId]: { 
         ...currentMemberData, 
         [targetTab]: [...(currentMemberData[targetTab] || []), item] 
