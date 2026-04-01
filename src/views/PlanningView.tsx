@@ -163,6 +163,7 @@ const handleInfoImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => 
       item.category = newItem.category;
     }
 
+
 const safeListData = listData || {};
 
 const currentMemberData =
@@ -176,19 +177,15 @@ const next = {
   } 
 };
 
-console.log('寫入 listData:', next); // ⭐ 建議保留
+console.log('寫入 listData:', next);
 
-updatePlanningCloud('listData', next);
-      [selectedMemberId]: { 
-        ...currentMemberData, 
-        [targetTab]: [...(currentMemberData[targetTab] || []), item] 
-      } 
-    };
-    
+
+
     updatePlanningCloud('listData', next);
-    setShowAddItemModal(false);
-    setNewItem({ ...newItem, text: '' });
-  };
+  setShowAddItemModal(false);
+  setNewItem({ ...newItem, text: '' });
+}; 
+    
 
   const toggleItem = (itemId: string) => {
     if (!selectedMemberId) return;
