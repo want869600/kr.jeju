@@ -181,10 +181,11 @@ console.log('寫入 listData:', next);
 
 
 
-    updatePlanningCloud('listData', next);
-  setShowAddItemModal(false);
-  setNewItem({ ...newItem, text: '' });
-}; 
+updatePlanningCloud('listData', next);
+setListData(next); // ⭐ 這行
+
+setShowAddItemModal(false);
+setNewItem({ ...newItem, text: '' });
     
 
   const toggleItem = (itemId: string) => {
