@@ -96,35 +96,24 @@ export const dbService = {
       });
     }),
 
-  subscribeField: (field: string, cb: (data: any) => void) => {
-    const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
 
-    return onSnapshot(ref, (snap) => {
-      if (!snap.exists()) {
-        if (field === 'schedule') return cb({});
-        if (field === 'currencyRates') return cb({});
-        if (field === 'listData') return cb({}); 
-        return cb([]);
-      }
+subscribeField: (field: string, cb: (data: any) => void) => {
+  const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
 
-      const data = snap.data()[field];
+  return onSnapshot(ref, (snap) => {
+    if (!snap.exists()) {
+      cb(null);
+      return;
+    }
 
-      if (field === 'schedule') {
-        return cb(data ?? {});
-      }
+    const data = snap.data()[field];
 
-      if (field === 'currencyRates') {
-        return cb(data ?? {});
-      }
+    // ⭐ 核心：直接回傳，不亂改型別
+    cb(data ?? null);
+  });
+},
 
-      if (Array.isArray(data)) {
-        return cb(data);
-      }
-
-      return cb([]);
-    });
-  },
-
+  
   updateField: async (field: string, value: any) => {
     const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
     try {
