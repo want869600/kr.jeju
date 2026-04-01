@@ -133,24 +133,7 @@ export const dbService = {
     }
   },
 };
-    
-    if (Array.isArray(data)) {
-      cb(data);
-    } else {
-      cb([]);
-    }
-  });
-},
-
-  updateField: async (field: string, value: any) => {
-    const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
-    try {
-      await updateDoc(ref, { [field]: value });
-    } catch {
-      await setDoc(ref, { [field]: value }, { merge: true });
-    }
-  },
-};
+ 
 export const bookingsService = {
   subscribe: (cb: (data: any[]) => void) => {
     const colRef = collection(
