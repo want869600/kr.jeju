@@ -96,38 +96,43 @@ export const dbService = {
       });
     }),
 
-subscribeField: (field: string, cb: (data: any) => void) => {
-  const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
+  subscribeField: (field: string, cb: (data: any) => void) => {
+    const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
 
-  return onSnapshot(ref, (snap) => {
-    if (!snap.exists()) {
-      cb(field === 'schedule' ? {} : field === 'currencyRates' ? {} : []);
-      return;
+    return onSnapshot(ref, (snap) => {
+      if (!snap.exists()) {
+        if (field === 'schedule') return cb({});
+        if (field === 'currencyRates') return cb({});
+        return cb([]);
+      }
+
+      const data = snap.data()[field];
+
+      if (field === 'schedule') {
+        return cb(data ?? {});
+      }
+
+      if (field === 'currencyRates') {
+        return cb(data ?? {});
+      }
+
+      if (Array.isArray(data)) {
+        return cb(data);
+      }
+
+      return cb([]);
+    });
+  },
+
+  updateField: async (field: string, value: any) => {
+    const ref = doc(db, 'trips', DEFAULT_TRIP_ID);
+    try {
+      await updateDoc(ref, { [field]: value });
+    } catch {
+      await setDoc(ref, { [field]: value }, { merge: true });
     }
-
-    const data = snap.data()[field];
-
-    // ✅ schedule 是 object
-    if (field === 'schedule') {
-      cb(data ?? {});
-      return;
-    }
-
-    // ✅ ⭐⭐⭐ currencyRates 也是 object（關鍵）
-    if (field === 'currencyRates') {
-      cb(data ?? {});
-      return;
-    }
-
-    // ✅ 其他才是 array
-    if (Array.isArray(data)) {
-      cb(data);
-    } else {
-      cb([]);
-    }
-  });
-},
-
+  },
+};
     
     if (Array.isArray(data)) {
       cb(data);
