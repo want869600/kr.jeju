@@ -746,25 +746,21 @@ const settlement: Settlement = {
           ) : (
             <>NT$ {item.amount.toLocaleString()}</>
     )}
-                </div>
-              </>
-            );
-          })()}
-      </div>
-
-                          
-  ))}
-                        </div>
-    )}
-
-  </div>
-))}
+</div>
                   )} 
-                  
+                </div>
+              ))
+            )} 
+          {/* 👇 ADD THIS CLOSING DIV 👇 */}
+          </div> 
+          {/* 👆 ADD THIS CLOSING DIV 👆 */}
 
-          <NordicButton onClick={() => setShowAnalysis(false)} className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase">關閉分析圖表</NordicButton>
+          <NordicButton onClick={() => setShowAnalysis(false)} className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase">
+            關閉分析圖表
+          </NordicButton>
         </div>
       </Modal>
+
 
       <Modal isOpen={showCalculator} onClose={() => setShowCalculator(false)} title="匯率換算計算機">
         <div className="space-y-5 pb-2">
