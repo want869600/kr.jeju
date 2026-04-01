@@ -107,9 +107,18 @@ const ExpenseView: React.FC<ExpenseViewProps> = ({ members }) => {
   useEffect(() => {
     const unsubExp = dbService.subscribeField('expenses', (data) => setExpenses(data || []));
     const unsubSettle = dbService.subscribeField('settlements',(data) => setSettlements(data || []));
-    const unsubRates = dbService.subscribeField('currencyRates', (data) => {
-      if (data && typeof data === 'object') setCurrencyRates(data as Record<string, number>);
-    });
+    
+    
+  const unsubRates = dbService.subscribeField('currencyRates', (data) => {
+  if (data && typeof data === 'object') {
+    setCurrencyRates(data as Record<string, number>);
+  } else {
+    console.warn('currencyRates 為空 → 使用預設');
+    setCurrencyRates(INITIAL_CURRENCIES); // ⭐ 關鍵
+  }
+});
+
+    
     return () => { unsubExp(); unsubSettle(); unsubRates(); };
   }, []);
 
@@ -318,13 +327,31 @@ expenses.forEach(exp => {
     return (inTwd / toRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }, [calcDisplay, calcSourceCurrency, calcTargetCurrency, currencyRates]);
 
-  const handleAddCurrency = () => {
-    if (!newCurrencyCode || !newCurrencyRate) return;
-    const next = { ...currencyRates, [newCurrencyCode.toUpperCase()]: parseFloat(newCurrencyRate) };
-    dbService.updateField('currencyRates', next);
-    setNewCurrencyCode('');
-    setNewCurrencyRate('');
+const handleAddCurrency = () => {
+  if (!newCurrencyCode || !newCurrencyRate) {
+    alert('請輸入完整資料');
+    return;
+  }
+
+  const rate = parseFloat(newCurrencyRate);
+
+  if (isNaN(rate)) {
+    alert('匯率格式錯誤');
+    return;
+  }
+
+  const next = {
+    ...currencyRates,
+    [newCurrencyCode.toUpperCase()]: rate
   };
+
+  console.log('新增匯率 →', next); // ⭐ debug
+
+  dbService.updateField('currencyRates', next);
+
+  setNewCurrencyCode('');
+  setNewCurrencyRate('');
+};
 
   const deleteCurrency = (code: string) => {
     if (code === 'TWD') return;
