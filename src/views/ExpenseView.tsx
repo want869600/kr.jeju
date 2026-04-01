@@ -751,12 +751,15 @@ const settlement: Settlement = {
             );
           })()}
       </div>
-    ))}
-      </div>
+
+                          
+  ))}
+                        </div>
     )}
 
   </div>
 ))}
+                  )} 
                   
 
           <NordicButton onClick={() => setShowAnalysis(false)} className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase">關閉分析圖表</NordicButton>
