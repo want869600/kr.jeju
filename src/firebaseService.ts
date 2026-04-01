@@ -103,6 +103,7 @@ export const dbService = {
       if (!snap.exists()) {
         if (field === 'schedule') return cb({});
         if (field === 'currencyRates') return cb({});
+        if (field === 'listData') return cb({}); 
         return cb([]);
       }
 
