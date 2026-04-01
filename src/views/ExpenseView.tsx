@@ -208,7 +208,7 @@ expenses.forEach(exp => {
       : exp.amount / exp.splitWith.length;
 
   // ③ 只在 analysis 做匯率轉換
-  const twdValue = rawAmount * rate;
+ const twdValue = rawAmount;
 
   if (categoriesSum[exp.category]) {
     categoriesSum[exp.category].total += twdValue;
@@ -411,17 +411,26 @@ const handleAddCurrency = () => {
   const handleSaveExpense = (isEditMode: boolean = false) => {
     if (!formData.amount || !formData.payerId || formData.splitWith.length === 0) return;
     
-    const exp: Expense = {
-      id: isEditMode && selectedExpense ? selectedExpense.id : Date.now().toString(),
-      amount: parseFloat(formData.amount),
-      currency: formData.currency,
-      category: formData.category,
-      payerId: formData.payerId,
-      splitWith: formData.splitWith,
-      addedBy: isEditMode && selectedExpense ? selectedExpense.addedBy : formData.payerId,
-      date: formData.date,
-      note: formData.note
-    };
+    const rawAmount = parseFloat(formData.amount);
+const rate = currencyRates[formData.currency] || 1;
+
+// ⭐ 統一轉成 TWD（關鍵）
+const amountTWD =
+  formData.currency === 'TWD'
+    ? rawAmount
+    : rawAmount * rate;
+
+const exp: Expense = {
+  id: isEditMode && selectedExpense ? selectedExpense.id : Date.now().toString(),
+  amount: amountTWD,              // ⭐ 用轉換後的
+  currency: formData.currency,    // ⭐ 保留原幣（顯示用）
+  category: formData.category,
+  payerId: formData.payerId,
+  splitWith: formData.splitWith,
+  addedBy: isEditMode && selectedExpense ? selectedExpense.addedBy : formData.payerId,
+  date: formData.date,
+  note: formData.note
+};
 
     let updatedExpenses;
     if (isEditMode && selectedExpense) {
@@ -974,6 +983,26 @@ const settlement: Settlement = {
              </select>
              <input type="number" placeholder="輸入支出金額" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} className="flex-grow p-3 bg-transparent font-bold text-sage text-xl outline-none" />
           </div>
+
+{formData.amount && (
+  <div className="text-xs text-earth-dark/50 mt-1 px-1">
+    ≈ NT$
+    {(() => {
+      const raw = parseFloat(formData.amount);
+      const rate = currencyRates[formData.currency] || 1;
+
+      if (isNaN(raw)) return '0';
+
+      const twd =
+        formData.currency === 'TWD'
+          ? raw
+          : raw * rate;
+
+      return Math.round(twd).toLocaleString();
+    })()}
+  </div>
+)}
+          
           <div className="flex gap-3 min-w-0">
             <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-[100px] h-14 bg-white border border-paper/40 rounded-2xl px-4 font-bold text-sage text-sm outline-none shadow-sm appearance-none">
               {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
