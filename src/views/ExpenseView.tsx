@@ -122,12 +122,7 @@ useEffect(() => {
     }
   });
 
-  return () => {
-    unsubExp();
-    unsubSettle();
-    unsubRates();
-  };
-}, []);
+
 
 
 // ✅ 2. 幣別 fallback（分開）
