@@ -104,7 +104,8 @@ const ExpenseView: React.FC<ExpenseViewProps> = ({ members }) => {
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
   const [activeCurrency, setActiveCurrency] =
   useState<string>('TWD');
-  // ✅ 1. Firebase 訂閱（只能在 useEffect 裡）
+
+// ✅ 1️⃣ Firebase 訂閱
 useEffect(() => {
   const unsubExp = dbService.subscribeField('expenses', (data) =>
     setExpenses(data || [])
@@ -118,25 +119,27 @@ useEffect(() => {
     if (data && typeof data === 'object') {
       setCurrencyRates(data as Record<string, number>);
     } else {
-      setCurrencyRates({ TWD: 1 }); // ❗不要用 INITIAL_CURRENCIES
+      setCurrencyRates({ TWD: 1 });
     }
   });
 
+  return () => {
+    unsubExp();
+    unsubSettle();
+    unsubRates();
+  };
+}, []);
 
 
-
-// ✅ 2. 幣別 fallback（分開）
+// ✅ 2️⃣ 幣別 fallback（一定要分開）
 useEffect(() => {
-  const keys = Object.keys(currencyRates);
+  const keys = Object.keys(currencyRates || {});
 
   if (keys.length > 0 && !keys.includes(activeCurrency)) {
     setActiveCurrency(keys[0]);
   }
 }, [currencyRates]);
 
-    
-    return () => { unsubExp(); unsubSettle(); unsubRates(); };
-  }, []);
 
   const [showAdd, setShowAdd] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
