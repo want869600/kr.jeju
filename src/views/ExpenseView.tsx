@@ -104,25 +104,40 @@ const ExpenseView: React.FC<ExpenseViewProps> = ({ members }) => {
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
   const [activeCurrency, setActiveCurrency] =
   useState<string>('TWD');
-  useEffect(() => {
-    const keys = Object.keys(currencyRates);
+  // ✅ 1. Firebase 訂閱（只能在 useEffect 裡）
+useEffect(() => {
+  const unsubExp = dbService.subscribeField('expenses', (data) =>
+    setExpenses(data || [])
+  );
+
+  const unsubSettle = dbService.subscribeField('settlements', (data) =>
+    setSettlements(data || [])
+  );
+
+  const unsubRates = dbService.subscribeField('currencyRates', (data) => {
+    if (data && typeof data === 'object') {
+      setCurrencyRates(data as Record<string, number>);
+    } else {
+      setCurrencyRates({ TWD: 1 }); // ❗不要用 INITIAL_CURRENCIES
+    }
+  });
+
+  return () => {
+    unsubExp();
+    unsubSettle();
+    unsubRates();
+  };
+}, []);
+
+
+// ✅ 2. 幣別 fallback（分開）
+useEffect(() => {
+  const keys = Object.keys(currencyRates);
 
   if (keys.length > 0 && !keys.includes(activeCurrency)) {
     setActiveCurrency(keys[0]);
   }
 }, [currencyRates]);
-    const unsubExp = dbService.subscribeField('expenses', (data) => setExpenses(data || []));
-    const unsubSettle = dbService.subscribeField('settlements',(data) => setSettlements(data || []));
-    
-    
-  const unsubRates = dbService.subscribeField('currencyRates', (data) => {
-  if (data && typeof data === 'object') {
-    setCurrencyRates(data as Record<string, number>);
-  } else {
-    console.warn('currencyRates 為空 → 使用預設');
-    setCurrencyRates(INITIAL_CURRENCIES); // ⭐ 關鍵
-  }
-});
 
     
     return () => { unsubExp(); unsubSettle(); unsubRates(); };
@@ -547,7 +562,6 @@ const settlement: Settlement = {
 </div>
 
       
-      </div>
       <div className="bg-[#E7DDD3] px-7 py-5 border-none relative overflow-hidden nordic-shadow rounded-[2.5rem] shadow-xl">
         <div className="relative z-10 space-y-4">
           <div className="flex justify-between items-start">
