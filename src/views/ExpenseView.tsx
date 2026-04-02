@@ -681,84 +681,118 @@ const settlement: Settlement = {
                 * 分析金額已統一換算為台幣顯示
               </span>
           </div>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
-            {analysisData.chartData.length === 0 ? (
-              <div className="py-12 text-center text-earth-dark/30 italic text-[11px] font-bold">目前暫無相關支出數據</div>
-            ) : (
-              analysisData.chartData.map(cat => (
-                <div key={cat.id} className="space-y-2">
-                  <div onClick={() => setDrillDownCategory(drillDownCategory === cat.id ? null : cat.id)} className={`bg-white p-4 rounded-2xl border border-paper/30 flex items-center justify-between shadow-sm cursor-pointer active:scale-98 transition-all ${drillDownCategory === cat.id ? 'ring-2 ring-harbor/20' : ''}`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs" style={{ backgroundColor: cat.color }}>
-                        <i className={`fa-solid ${CATEGORIES.find(c => c.id === cat.id)?.icon || 'fa-tag'}`}></i>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-sage">{cat.label}</span>
-                        <span className="text-[9px] font-bold text-earth-dark/60">{cat.percentage}% 佔比</span>
-                      </div>
+         <div className="space-y-2 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
+  {analysisData.chartData.length === 0 ? (
+    <div className="py-12 text-center text-earth-dark/30 italic text-[11px] font-bold">
+      目前暫無相關支出數據
+    </div>
+  ) : (
+    <>
+      {analysisData.chartData.map(cat => (
+        <div key={cat.id} className="space-y-2">
+          
+          {/* 分類卡片 */}
+          <div
+            onClick={() =>
+              setDrillDownCategory(
+                drillDownCategory === cat.id ? null : cat.id
+              )
+            }
+            className={`bg-white p-4 rounded-2xl border border-paper/30 flex items-center justify-between shadow-sm cursor-pointer active:scale-98 transition-all ${
+              drillDownCategory === cat.id ? 'ring-2 ring-harbor/20' : ''
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs"
+                style={{ backgroundColor: cat.color }}
+              >
+                <i
+                  className={`fa-solid ${
+                    CATEGORIES.find(c => c.id === cat.id)?.icon || 'fa-tag'
+                  }`}
+                ></i>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-sage">{cat.label}</span>
+                <span className="text-[9px] font-bold text-earth-dark/60">
+                  {cat.percentage}% 佔比
+                </span>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-xs font-bold text-sage">
+                NT$ {cat.value.toLocaleString()}
+              </div>
+              <div className="text-[8px] font-bold text-earth-dark/40 uppercase tracking-widest">
+                {cat.items.length} 筆明細
+              </div>
+            </div>
+          </div>
+
+          {/* 展開明細 */}
+          {drillDownCategory === cat.id && (
+            <div className="px-2 space-y-1.5 animate-in slide-in-from-top-1 duration-300 pb-2">
+              {cat.items.map(item => {
+                const rawShare =
+                  analysisMemberId === 'TEAM'
+                    ? item.amount
+                    : item.amount / item.splitWith.length;
+
+                const twdValue = Math.round(rawShare);
+                const isConverted = item.currency !== 'TWD';
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-paper/5 p-3 rounded-xl border border-paper/20 flex justify-between items-center text-[10px] font-bold"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sage">
+                        {item.note || '旅途支出'}
+                      </span>
+                      <span className="text-earth-dark/50 text-[8px] uppercase tracking-widest">
+                        {item.date}
+                      </span>
                     </div>
+
                     <div className="text-right">
-                      <div className="text-xs font-bold text-sage">
-                        NT$ {cat.value.toLocaleString()}
+                      <div className="flex items-center justify-end gap-1.5">
+                        {isConverted && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-paper/40 text-earth-dark/60">
+                            ≈
+                          </span>
+                        )}
+                        <span className="text-sage">
+                          NT$ {twdValue.toLocaleString()}
+                        </span>
                       </div>
-                      <div className="text-[8px] font-bold text-earth-dark/40 uppercase tracking-widest">{cat.items.length} 筆明細</div>
+
+                      <div className="text-[7px] text-earth-dark/40">
+                        {item.currency !== 'TWD'
+                          ? `${item.currency} ${(item.originalAmount ?? item.amount).toLocaleString()} ≈ NT$ ${Math.round(item.amount).toLocaleString()}`
+                          : `NT$ ${item.amount.toLocaleString()}`}
+                      </div>
                     </div>
                   </div>
-                  {drillDownCategory === cat.id && (
-                    <div className="px-2 space-y-1.5 animate-in slide-in-from-top-1 duration-300 pb-2">
-                      {cat.items.map(item => (
-                        <div key={item.id} className="bg-paper/5 p-3 rounded-xl border border-paper/20 flex justify-between items-center text-[10px] font-bold">
-                          <div className="flex flex-col">
-                            <span className="text-sage">{item.note || '旅途支出'}</span>
-                            <span className="text-earth-dark/50 text-[8px] uppercase tracking-widest">{item.date}</span>
-                          </div>
-
-<div className="text-right">
-  {(() => {
-    const rawShare =
-      analysisMemberId === 'TEAM'
-        ? item.amount
-        : item.amount / item.splitWith.length;
-
-    const twdValue = Math.round(rawShare);
-    const isConverted = item.currency !== 'TWD';
-
-    return (
-      <>
-        <div className="flex items-center justify-end gap-1.5">
-          {isConverted && (
-            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-paper/40 text-earth-dark/60">
-              ≈
-            </span>
+                );
+              })}
+            </div>
           )}
-          <span className="text-sage">
-            NT$ {twdValue.toLocaleString()}
-          </span>
         </div>
+      ))}
 
-        <div className="text-[7px] text-earth-dark/40">
-          {item.currency !== 'TWD' ? (
-            <>
-              {item.currency}{' '}
-              {(item.originalAmount ?? item.amount).toLocaleString()} ≈ NT${' '}
-              {Math.round(item.amount).toLocaleString()}
-            </>
-          ) : (
-            <>NT$ {item.amount.toLocaleString()}</>
-    )}
+      {/* ⭐ 按鈕一定在 map 外 */}
+      <NordicButton
+        onClick={() => setShowAnalysis(false)}
+        className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase"
+      >
+        關閉分析圖表
+      </NordicButton>
+    </>
+  )}
 </div>
-                  )} 
-                </div>
-              ))
-            )} 
-          {/* 👇 ADD THIS CLOSING DIV 👇 */}
-          </div> 
-          {/* 👆 ADD THIS CLOSING DIV 👆 */}
-
-          <NordicButton onClick={() => setShowAnalysis(false)} className="w-full h-12 bg-harbor text-white border-none shadow-lg text-[10px] tracking-widest uppercase">
-            關閉分析圖表
-          </NordicButton>
-        </div>
       </Modal>
 
 
