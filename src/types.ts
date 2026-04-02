@@ -64,6 +64,7 @@ export interface Booking {
 export interface Expense {
   id: string;
   amount: number;
+  originalAmount?: number;  
   currency: string;
   category: string;
   payerId: string;
